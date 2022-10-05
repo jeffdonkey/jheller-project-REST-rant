@@ -1,119 +1,73 @@
 const router = require('express').Router()
-const places = require('../models/places.js')
+//line directily below is not in activity 8
+//const places = require('../models/places.js')
+//line above is not needed because we are switching to a db
+const db = require('../models')
 
+//Index route
 router.get('/', (req, res) => {
-  res.render('places/index', { places })
+  db.Place.find()
+  .then((places) => {
+    res.render('places/index', {places})
+  })
+  .catch(err => {
+    console.log(err)
+    res.render('error404')
+  })
 })
 
-// NEW
+//NEW post route
+router.post('/', (req, res) => {
+  db.Place.create(req.body)
+  .then(() => {
+    res.redirect('/places')
+  })
+  .catch(err => {
+    console.log('err', err)
+    res.render('error404')
+  })
+})
+
+// NEW get route
 router.get('/new', (req, res) => {
   res.render('places/new')
 })
 
-//EDIT get route
-router.get('/:id/edit', (req, res) => {
-  let id = Number(req.params.id)
-  console.log("edit get route")
-  if (isNaN(id)) {
-    res.render('error404')
-  }
-  else if (!places[id]) {
-    res.render('error404')
-  }
-  else {
-    res.render('places/edit', { place: places[id] })
-  }
-})
-
 //SHOW route
 router.get('/:id', (req, res) => {
-  let id = Number(req.params.id)
-  if (isNaN(id)) {
+  db.Place.findById(req.params.id)
+  .then(place => {
+    res.render ('places/show', {place})
+  })
+  .catch(err => {
+    console.log('err', err)
     res.render('error404')
-  }
-  else if (!places[id]) {
-    res.render('error404')
-  }
-  else {
-    res.render('places/show', { place: places[id], id })
-  }
+  }) 
+})
+
+//UPDATE
+router.put('/:id', (req, res) => {
+  res.send('PUT /places/:id stub')
 })
 
 //DELETE
 router.delete('/:id', (req, res) => {
-  let id = Number(req.params.id)
-  console.log("delete gets" + id)
-  if (isNaN(id)) {
-    res.render('error404')
-  }
-  else if (!places[id]) {
-    res.render('error404')
-  }
-  else {
-    places.splice(id, 1)
-    res.redirect('/places')
-  }
+  res.send('DELETE /places/:id stub')
 })
 
-//UPDATE "complete route".
-router.put('/:id', (req, res) => {
-  let id = Number(req.params.id)
-  console.log ('I got to the update route')
-  console.log ("what data did i receive " + id)
-  if (isNaN(id)) {
-    res.render('error404')
-  }
-  else if (!places[id]) {
-    res.render('error404')
-  }
-  else {
-    if (!req.body.pic) {
-
-      req.body.pic = 'http://placekitten.com/400/400'
-    }
-    if (!req.body.city) {
-      req.body.city = 'Anytown'
-    }
-    if (!req.body.state) {
-      req.body.state = 'USA'
-    }
-
-    // Save the new data into places[id]
-    places[id] = req.body
-    res.redirect(`/places/${id}`)
-  }
+//EDIT get route
+router.get('/:id/edit', (req, res) => {
+  res.send('GET edit form stub')
 })
 
-//UPDATE stub
-// router.put('/:id', (req, res) => {
-//   res.send('PUT /places/ :id stub')
-// })
-
-
-//NEW post route
-router.post('/', (req, res) => {
-  console.log(req.body)
-  if (!req.body.pic) {
-    //Default image if one is not provided
-    req.body.pic = 'http://placekitten.com/400/400'
-  }
-  if (!req.body.city) {
-    req.body.city = 'Anytown'
-  }
-  if (!req.body.state) {
-    req.body.state = 'USA'
-  }
-  places.push(req.body)
-  res.redirect('/places')
+//RANT post route
+router.post('/:id/rant', (req, res) => {
+  res.send('GET /places/:id/rant stub')
 })
 
-
-
-
-
-
-
-
-
+//RANT delete route
+router.delete('/:id/rant/:rantId', (res, req) => {
+  res.send('GET /places/:id/rand/:rantId stub')
+})
 
 module.exports = router
